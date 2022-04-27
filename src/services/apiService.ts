@@ -3,9 +3,7 @@ import router from "../router";
 import { Notify } from "quasar";
 export default class ApiService {
   static axios = _axios.create({
-    baseURL: process.env.VUE_APP_SERVER_ADDRESS
-      ? process.env.VUE_APP_SERVER_ADDRESS
-      : "http://localhost:5000/",
+    baseURL: "http://172.16.21.60:8000/",
     timeout: 10000,
   });
 

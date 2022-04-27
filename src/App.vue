@@ -4,13 +4,16 @@
       <h4 class="q-my-none text-white">Text Generator</h4>
       <p class="text-body1 q-my-none text-white">Image to Text Generator</p>
     </div>
-    <div class="row justify-center">
+    <div
+      v-if="!(res && res.Caption && res.Caption.length > 1)"
+      class="row justify-center"
+    >
       <div class="col-12 text-center q-my-sm">
         <Button
           style="width: 200px"
           color="green"
           label="Take a photo"
-          @click="fileRef.click()"
+          @click="fileRef.pickFiles()"
         />
       </div>
       <div class="col-12 text-center q-my-sm">
@@ -18,30 +21,79 @@
           style="width: 200px"
           color="green"
           label="Upload Image"
-          @click="fileUploadRef.click()"
+          @click="fileUploadRef.pickFiles()"
         />
       </div>
-      <div class="col-12 hidden">
-        <input ref="fileRef" accept="image/*" capture="camera" type="file" />
+      <div class="col-12">
+        <q-file
+          class="hidden"
+          accept="image/*"
+          capture="camera"
+          type="file"
+          ref="fileRef"
+          v-model="newFile"
+          label="Pick one file"
+          filled
+          style="max-width: 300px"
+        />
       </div>
-      <div class="col-12 hidden">
-        <input ref="fileUploadRef" accept="image/*" type="file" />
+      <div class="col-12">
+        <q-file
+          class="hidden"
+          accept="image/*"
+          capture="camera"
+          type="file"
+          ref="fileUploadRef"
+          v-model="newFile"
+          label="Pick one file"
+          filled
+          style="max-width: 300px"
+        />
       </div>
+    </div>
+    <div v-else>
+      <h5 class="q-my-sm text-center">Your Caption is: {{ res.Caption }}</h5>
     </div>
   </q-layout>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { onMounted, ref, watch } from "vue";
+import ApiService from "./services/apiService";
 
+const res = ref({
+  Caption: "",
+});
+const newFile = ref();
 const fileRef = ref();
 const fileUploadRef = ref();
 
-// const onClick = () => {
-//   const msg = new SpeechSynthesisUtterance();
-//   msg.text = "Hello World";
-//   window.speechSynthesis.speak(msg);
-// };
+const onClick = () => {
+  const msg = new SpeechSynthesisUtterance();
+  msg.text = res.value.Caption;
+  window.speechSynthesis.speak(msg);
+};
+
+const uploadImage = async () => {
+  const formdata = new FormData();
+  formdata.append("file", newFile.value);
+  res.value = await ApiService.post("/File", formdata);
+  onClick();
+  setTimeout(() => {
+    res.value.Caption = "";
+  }, 5000);
+};
+
+watch(
+  () => newFile.value,
+  () => {
+    uploadImage();
+  }
+);
+
+onMounted(() => {
+  res.value.Caption = "";
+});
 </script>
 
 <style lang="scss">
