@@ -3,8 +3,8 @@ import router from "../router";
 import { Notify } from "quasar";
 export default class ApiService {
   static axios = _axios.create({
-    baseURL: "http://172.16.21.60:8000/",
-    timeout: 10000,
+    baseURL: "https://tab-links.cf/api/File",
+    timeout: 1000000,
   });
 
   static axiosInterceptor = ApiService.addInterceptor();

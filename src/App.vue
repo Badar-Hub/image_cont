@@ -21,7 +21,7 @@
           style="width: 200px"
           color="green"
           label="Upload Image"
-          @click="fileUploadRef.pickFiles()"
+          @click="fileUploadRef.click()"
         />
       </div>
       <div class="col-12">
@@ -37,18 +37,8 @@
           style="max-width: 300px"
         />
       </div>
-      <div class="col-12">
-        <q-file
-          class="hidden"
-          accept="image/*"
-          capture="camera"
-          type="file"
-          ref="fileUploadRef"
-          v-model="newFile"
-          label="Pick one file"
-          filled
-          style="max-width: 300px"
-        />
+      <div class="col-12 hidden">
+        <input @change="changePicture" type="file" ref="fileUploadRef" />
       </div>
     </div>
     <div v-else>
@@ -64,6 +54,7 @@ import ApiService from "./services/apiService";
 const res = ref({
   Caption: "",
 });
+const isLoading = ref(false);
 const newFile = ref();
 const fileRef = ref();
 const fileUploadRef = ref();
@@ -75,21 +66,34 @@ const onClick = () => {
 };
 
 const uploadImage = async () => {
+  isLoading.value = true;
   const formdata = new FormData();
   formdata.append("file", newFile.value);
-  res.value = await ApiService.post("/File", formdata);
+  res.value = await ApiService.post("", formdata);
+  isLoading.value = true;
   onClick();
   setTimeout(() => {
     res.value.Caption = "";
+    newFile.value = null;
   }, 5000);
 };
 
 watch(
   () => newFile.value,
   () => {
-    uploadImage();
+    if (newFile.value) {
+      uploadImage();
+    }
   }
 );
+
+const changePicture = (e: any) => {
+  if (e.target.file) {
+    newFile.value = e.target.file;
+  } else {
+    newFile.value = e.target.files[0];
+  }
+};
 
 onMounted(() => {
   res.value.Caption = "";
